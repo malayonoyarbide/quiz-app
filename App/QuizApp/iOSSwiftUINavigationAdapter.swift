@@ -35,22 +35,45 @@ final class iOSSwiftUINavigationAdapter: QuizDelegate {
 		
 		let presenter = QuestionPresenter(questions: questions, question: question)
 		
+		let isFirstQuestion = questions.first == question
+		
 		withAnimation {
 			switch question {
 			case .singleAnswer(let value):
-				navigation.currentView = .single(
-					SingleAnswerQuestion(
-						title: presenter.title,
-						question: value,
-						options: options,
-						selection: { completion([$0]) }))
+				
+				if isFirstQuestion {
+					navigation.setRootView(rootView: .single(
+						SingleAnswerQuestion(
+							title: presenter.title,
+							question: value,
+							options: options,
+							selection: { completion([$0]) })))
+				} else {
+					navigation.navigateToView(currentView: .single(
+						SingleAnswerQuestion(
+							title: presenter.title,
+							question: value,
+							options: options,
+							selection: { completion([$0]) })))
+				}
+				
+				
 				
 			case .multipleAnswer(let value):
-				navigation.currentView = .multiple(
-					MultipleAnswerQuestion(
-						title: presenter.title,
-						question: value,
-						store: .init(options: options, handler: completion)))
+				
+				if isFirstQuestion {
+					navigation.setRootView(rootView: .multiple(
+						MultipleAnswerQuestion(
+							title: presenter.title,
+							question: value,
+							store: .init(options: options, handler: completion))))
+				} else {
+					navigation.navigateToView(currentView: .multiple(
+						MultipleAnswerQuestion(
+							title: presenter.title,
+							question: value,
+							store: .init(options: options, handler: completion))))
+				}
 			}
 		}
 	}
@@ -63,12 +86,12 @@ final class iOSSwiftUINavigationAdapter: QuizDelegate {
 		)
 		
 		withAnimation {
-			navigation.currentView = .result(
+			navigation.navigateToView(currentView: .result(
 				ResultView(
 					title: presenter.title,
 					summary: presenter.summary,
 					answers: presenter.presentableAnswers,
-					playAgain: playAgain))
+					playAgain: playAgain)))
 		}
 	}
 }

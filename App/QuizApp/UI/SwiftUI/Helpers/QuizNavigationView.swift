@@ -11,9 +11,13 @@ class QuizNavigationStore: ObservableObject {
 		case result(ResultView)
 	}
 	
-	@Published var currentView: CurrentView?
+	var currentView: CurrentView?
 	
-	var view: AnyView {
+	@Published var navigate: Bool = false
+	
+	@Published var rootView: CurrentView?
+	
+	var destinationView: AnyView {
 		switch currentView {
 		case let .single(view): return AnyView(view)
 		case let .multiple(view): return AnyView(view)
@@ -21,19 +25,38 @@ class QuizNavigationStore: ObservableObject {
 		case .none: return AnyView(EmptyView())
 		}
 	}
+	
+	var view: AnyView {
+		switch rootView {
+		case let .single(view): return AnyView(view)
+		case let .multiple(view): return AnyView(view)
+		case let .result(view): return AnyView(view)
+		case .none: return AnyView(EmptyView())
+		}
+	}
+	
+	func navigateToView(currentView: CurrentView) {
+		self.currentView = currentView
+		self.navigate = true
+	}
+	
+	func setRootView(rootView: CurrentView) {
+		self.rootView = rootView
+		self.navigate = false
+	}
 }
 
 struct QuizNavigationView: View {
+	
 	@ObservedObject var store: QuizNavigationStore
 	
 	var body: some View {
-		store.view
-			.transition(
-				AnyTransition
-					.opacity
-					.combined(with: .move(edge: .trailing))
-			)
-			.id(UUID())
+		ZStack {
+			NavigationLink("", isActive: self.$store.navigate) {
+				store.destinationView
+			}
+			store.view
+		}
 	}
 }
 

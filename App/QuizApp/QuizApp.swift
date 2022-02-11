@@ -16,10 +16,12 @@ struct QuizApp: App {
 	
 	var body: some Scene {
 		WindowGroup {
-			QuizNavigationView(store: navigationStore)
-				.onAppear {
-					startNewQuiz()
-				}
+			NavigationView {
+				QuizNavigationView(store: navigationStore)
+			}
+			.onAppear {
+				startNewQuiz()
+			}
 		}
 	}
 	
